@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Creature Under the Stairs</title>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Caveat:wght@400;500;600&family=Crimson+Pro:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --wall: #e8e0d4;
+    --wall-shadow: #d4ccc0;
+    --wood: #8B6914;
+    --wood-light: #c4a050;
+    --ink: #2a2418;
+    --ink-soft: #4a4030;
+    --ink-faint: #8a7a60;
+    --cream: #faf6ee;
+    --cream-aged: #f0e8d4;
+    --note-yellow: #fef9c3;
+    --note-blue: #dbeafe;
+    --note-pink: #fce7f3;
+    --note-green: #dcfce7;
+    --tape: rgba(200, 190, 160, 0.5);
+    --pin-red: #dc2626;
+    --stair-dark: #3d2b1a;
+    --stair-mid: #6b4423;
+    --stair-light: #a0622a;
+    --creature: #5a7a4a;
+  }
+ 
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+ 
+  html { scroll-behavior: smooth; }
+ 
+  body {
+    background: var(--wall);
+    color: var(--ink);
+    font-family: 'Crimson Pro', Georgia, serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+  }
+ 
+  /* Wallpaper texture — subtle diamond pattern */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      repeating-linear-gradient(45deg, rgba(160,140,110,0.04) 0px, rgba(160,140,110,0.04) 1px, transparent 1px, transparent 20px),
+      repeating-linear-gradient(-45deg, rgba(160,140,110,0.04) 0px, rgba(160,140,110,0.04) 1px, transparent 1px, transparent 20px);
+    pointer-events: none;
+    z-index: 0;
+  }
+ 
+  /* ── PAGE LAYOUT ── */
+  .page {
+    position: relative;
+    z-index: 2;
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 0 32px 120px;
+  }
+ 
+  /* ── HEADER — the staircase illustration ── */
+  .header {
+    text-align: center;
+    padding: 48px 0 0;
+    position: relative;
+    animation: fadeUp 0.8s ease both;
+  }
+ 
+  .stair-svg {
+    display: block;
+    margin: 0 auto;
+    max-width: 640px;
+    width: 100%;
+    filter: drop-shadow(0 8px 24px rgba(60,40,20,0.2));
+  }
+ 
+  /* ── TITLE ── */
+  .title-block {
+    text-align: center;
+    padding: 32px 0 48px;
+    animation: fadeUp 0.8s 0.2s ease both;
+  }
+ 
+  .title-label {
+    font-family: 'Caveat', cursive;
+    font-size: 15px;
+    color: var(--ink-faint);
+    letter-spacing: 2px;
+    display: block;
+    margin-bottom: 10px;
+  }
+ 
+  h1 {
+    font-family: 'Libre Baskerville', Georgia, serif;
+    font-size: clamp(26px, 4.5vw, 46px);
+    font-weight: 400;
+    line-height: 1.2;
+    color: var(--ink);
+  }
+ 
+  h1 em {
+    font-style: italic;
+    color: var(--stair-mid);
+  }
+ 
+  .title-sub {
+    font-family: 'Crimson Pro', serif;
+    font-style: italic;
+    font-size: 17px;
+    color: var(--ink-faint);
+    margin-top: 10px;
+  }
+ 
+  /* ── STORY TEXT ── */
+  .story {
+    animation: fadeUp 0.8s 0.4s ease both;
+  }
+ 
+  p {
+    font-size: clamp(16px, 2.2vw, 19px);
+    line-height: 1.85;
+    margin-bottom: 22px;
+    color: var(--ink);
+    font-weight: 300;
+  }
+ 
+  .dropcap::first-letter {
+    font-family: 'Libre Baskerville', serif;
+    font-size: 76px;
+    float: left;
+    line-height: 0.82;
+    margin: 6px 10px 0 -2px;
+    color: var(--stair-mid);
+  }
+ 
+  em { font-style: italic; color: var(--ink-soft); }
+ 
+  .cname {
+    font-family: 'Libre Baskerville', serif;
+    font-style: italic;
+    color: var(--stair-mid);
+  }
+ 
+  /* ── SECTION DIVIDER ── */
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin: 48px 0;
+  }
+ 
+  .divider::before, .divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--ink-faint), transparent);
+    opacity: 0.4;
+  }
+ 
+  .divider span {
+    font-family: 'Caveat', cursive;
+    font-size: 15px;
+    color: var(--ink-faint);
+    letter-spacing: 3px;
+    white-space: nowrap;
+  }
+ 
+  /* ── STICKY NOTES — the creature's opinions ── */
+  .note-cluster {
+    margin: 36px 0;
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    justify-content: center;
+  }
+ 
+  .sticky {
+    padding: 16px 18px 20px;
+    font-family: 'Caveat', cursive;
+    font-size: 17px;
+    line-height: 1.55;
+    color: var(--ink);
+    position: relative;
+    box-shadow: 2px 3px 8px rgba(60,40,20,0.18), 0 1px 0 rgba(255,255,255,0.5) inset;
+    max-width: 200px;
+    min-width: 160px;
+    flex: 0 0 auto;
+  }
+ 
+  .sticky::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 6px;
+    background: rgba(0,0,0,0.07);
+    border-radius: 1px 1px 0 0;
+  }
+ 
+  /* Tape strip on some notes */
+  .sticky.taped::after {
+    content: '';
+    position: absolute;
+    top: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 48px;
+    height: 16px;
+    background: var(--tape);
+    border-radius: 2px;
+  }
+ 
+  .sticky.yellow { background: var(--note-yellow); transform: rotate(-1.5deg); }
+  .sticky.blue   { background: var(--note-blue);   transform: rotate(1.2deg);  }
+  .sticky.pink   { background: var(--note-pink);   transform: rotate(-0.8deg); }
+  .sticky.green  { background: var(--note-green);  transform: rotate(2deg);    }
+  .sticky.cream  { background: var(--cream-aged);  transform: rotate(-2.2deg); }
+ 
+  .sticky-label {
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin-bottom: 6px;
+    display: block;
+    font-family: 'Crimson Pro', serif;
+    font-style: italic;
+  }
+ 
+  /* ── FORMAL LETTER from the creature ── */
+  .letter {
+    background: var(--cream);
+    border: 1px solid rgba(160,140,110,0.3);
+    padding: 32px 40px;
+    margin: 40px 0;
+    position: relative;
+    box-shadow: 2px 4px 16px rgba(60,40,20,0.12), 0 1px 0 rgba(255,255,255,0.8) inset;
+    transform: rotate(0.3deg);
+  }
+ 
+  .letter::before {
+    content: '';
+    position: absolute;
+    top: -8px; left: 50%;
+    transform: translateX(-50%);
+    width: 64px; height: 16px;
+    background: var(--tape);
+    border-radius: 2px;
+  }
+ 
+  .letter-header {
+    text-align: center;
+    border-bottom: 1px solid rgba(160,140,110,0.25);
+    padding-bottom: 16px;
+    margin-bottom: 20px;
+  }
+ 
+  .letter-from {
+    font-family: 'Libre Baskerville', serif;
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    display: block;
+    margin-bottom: 4px;
+  }
+ 
+  .letter-title {
+    font-family: 'Caveat', cursive;
+    font-size: 22px;
+    color: var(--creature);
+    font-weight: 600;
+  }
+ 
+  .letter-body {
+    font-family: 'Caveat', cursive;
+    font-size: 17px;
+    line-height: 1.7;
+    color: var(--ink);
+  }
+ 
+  .letter-body p {
+    font-family: 'Caveat', cursive;
+    font-size: 17px;
+    margin-bottom: 12px;
+    font-weight: 400;
+  }
+ 
+  .letter-sign {
+    margin-top: 16px;
+    font-family: 'Caveat', cursive;
+    font-size: 16px;
+    color: var(--creature);
+    text-align: right;
+    font-weight: 600;
+  }
+ 
+  /* ── OPINION LEDGER / TABLE ── */
+  .ledger {
+    background: var(--cream);
+    border: 1px solid rgba(160,140,110,0.3);
+    padding: 0;
+    margin: 40px 0;
+    overflow: hidden;
+    box-shadow: 2px 4px 16px rgba(60,40,20,0.1);
+    transform: rotate(-0.2deg);
+  }
+ 
+  .ledger-title {
+    background: var(--stair-mid);
+    color: var(--cream);
+    padding: 10px 20px;
+    font-family: 'Libre Baskerville', serif;
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+  }
+ 
+  .ledger-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    border-bottom: 1px solid rgba(160,140,110,0.2);
+    font-family: 'Caveat', cursive;
+    font-size: 16px;
+  }
+ 
+  .ledger-row:last-child { border-bottom: none; }
+ 
+  .ledger-row:nth-child(even) { background: rgba(160,140,110,0.05); }
+ 
+  .ledger-cell {
+    padding: 10px 20px;
+    line-height: 1.4;
+  }
+ 
+  .ledger-cell.topic {
+    border-right: 1px solid rgba(160,140,110,0.2);
+    font-style: italic;
+    color: var(--ink-soft);
+    font-size: 15px;
+    font-family: 'Crimson Pro', serif;
+  }
+ 
+  .ledger-cell.opinion {
+    color: var(--ink);
+  }
+ 
+  /* ── PULL QUOTE ── */
+  .pullquote {
+    margin: 44px 0;
+    padding: 24px 32px;
+    background: rgba(107,68,35,0.06);
+    border-left: 3px solid var(--stair-mid);
+    position: relative;
+  }
+ 
+  .pullquote p {
+    font-family: 'Libre Baskerville', serif;
+    font-style: italic;
+    font-size: clamp(18px, 2.8vw, 24px);
+    line-height: 1.55;
+    color: var(--ink-soft);
+    margin-bottom: 0;
+  }
+ 
+  /* ── END MARK ── */
+  .end-mark {
+    text-align: center;
+    margin-top: 64px;
+    padding-top: 36px;
+    border-top: 1px solid rgba(160,140,110,0.3);
+  }
+ 
+  .end-mark span {
+    font-family: 'Libre Baskerville', serif;
+    font-style: italic;
+    font-size: 15px;
+    color: var(--ink-faint);
+  }
+ 
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(18px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+ 
+  @media (max-width: 560px) {
+    .page { padding: 0 20px 80px; }
+    .note-cluster { gap: 12px; }
+    .sticky { max-width: 160px; font-size: 15px; }
+    .letter { padding: 22px 24px; }
+    .ledger-cell { padding: 8px 14px; }
+  }
+</style>
+</head>
+<body>
+ 
+<div class="page">
+ 
+  <!-- ── STAIRCASE ILLUSTRATION ── -->
+  <div class="header">
+    <svg class="stair-svg" viewBox="0 0 640 280" fill="none" xmlns="http://www.w3.org/2000/svg">
+ 
+      <!-- Wall background -->
+      <rect width="640" height="280" fill="#e8e0d4" rx="4"/>
+ 
+      <!-- Wallpaper lines subtle -->
+      <line x1="0" y1="40" x2="640" y2="40" stroke="rgba(160,140,110,0.1)" stroke-width="1"/>
+      <line x1="0" y1="80" x2="640" y2="80" stroke="rgba(160,140,110,0.1)" stroke-width="1"/>
+      <line x1="0" y1="120" x2="640" y2="120" stroke="rgba(160,140,110,0.1)" stroke-width="1"/>
+      <line x1="0" y1="160" x2="640" y2="160" stroke="rgba(160,140,110,0.1)" stroke-width="1"/>
+      <line x1="0" y1="200" x2="640" y2="200" stroke="rgba(160,140,110,0.1)" stroke-width="1"/>
+      <line x1="0" y1="240" x2="640" y2="240" stroke="rgba(160,140,110,0.1)" stroke-width="1"/>
+ 
+      <!-- Floor -->
+      <rect x="0" y="250" width="640" height="30" fill="#c4a050" opacity="0.3"/>
+      <line x1="0" y1="250" x2="640" y2="250" stroke="#8B6914" stroke-width="2"/>
+ 
+      <!-- Staircase structure — ascending left to right -->
+      <!-- Underside / filled triangle -->
+      <polygon points="80,250 480,250 480,50" fill="#6b4423"/>
+      <!-- Stair treads -->
+      <!-- Step 1 (bottom) -->
+      <rect x="80" y="220" width="80" height="30" fill="#a0622a"/>
+      <rect x="80" y="218" width="80" height="4" fill="#c4803a" opacity="0.6"/>
+      <!-- Step 2 -->
+      <rect x="160" y="190" width="80" height="60" fill="#a0622a"/>
+      <rect x="160" y="188" width="80" height="4" fill="#c4803a" opacity="0.6"/>
+      <!-- Step 3 -->
+      <rect x="240" y="160" width="80" height="90" fill="#a0622a"/>
+      <rect x="240" y="158" width="80" height="4" fill="#c4803a" opacity="0.6"/>
+      <!-- Step 4 -->
+      <rect x="320" y="130" width="80" height="120" fill="#a0622a"/>
+      <rect x="320" y="128" width="80" height="4" fill="#c4803a" opacity="0.6"/>
+      <!-- Step 5 (top) -->
+      <rect x="400" y="100" width="80" height="150" fill="#a0622a"/>
+      <rect x="400" y="98" width="80" height="4" fill="#c4803a" opacity="0.6"/>
+ 
+      <!-- Vertical risers shading -->
+      <rect x="80" y="220" width="4" height="30" fill="rgba(0,0,0,0.1)"/>
+      <rect x="160" y="190" width="4" height="30" fill="rgba(0,0,0,0.1)"/>
+      <rect x="240" y="160" width="4" height="30" fill="rgba(0,0,0,0.1)"/>
+      <rect x="320" y="130" width="4" height="30" fill="rgba(0,0,0,0.1)"/>
+      <rect x="400" y="100" width="4" height="30" fill="rgba(0,0,0,0.1)"/>
+ 
+      <!-- Banister rail -->
+      <line x1="84" y1="214" x2="484" y2="44" stroke="#3d2b1a" stroke-width="5" stroke-linecap="round"/>
+      <line x1="84" y1="214" x2="484" y2="44" stroke="#8B6914" stroke-width="2.5" stroke-linecap="round" opacity="0.5"/>
+      <!-- Banister posts -->
+      <line x1="100" y1="218" x2="108" y2="250" stroke="#3d2b1a" stroke-width="3"/>
+      <line x1="180" y1="188" x2="188" y2="220" stroke="#3d2b1a" stroke-width="3"/>
+      <line x1="260" y1="158" x2="268" y2="190" stroke="#3d2b1a" stroke-width="3"/>
+      <line x1="340" y1="128" x2="348" y2="160" stroke="#3d2b1a" stroke-width="3"/>
+      <line x1="420" y1="98" x2="428" y2="130" stroke="#3d2b1a" stroke-width="3"/>
+      <line x1="460" y1="72" x2="468" y2="100" stroke="#3d2b1a" stroke-width="3"/>
+ 
+      <!-- The cupboard door under the stairs -->
+      <rect x="88" y="152" width="58" height="66" rx="2" fill="#5a3a1a"/>
+      <rect x="90" y="154" width="54" height="62" rx="1" fill="#6b4423" opacity="0.8"/>
+      <!-- Door frame -->
+      <rect x="88" y="152" width="58" height="66" rx="2" fill="none" stroke="#3d2b1a" stroke-width="2"/>
+      <!-- Door panel detail -->
+      <rect x="94" y="158" width="46" height="24" rx="1" fill="none" stroke="rgba(0,0,0,0.2)" stroke-width="1"/>
+      <rect x="94" y="186" width="46" height="26" rx="1" fill="none" stroke="rgba(0,0,0,0.2)" stroke-width="1"/>
+      <!-- Door knob -->
+      <circle cx="140" cy="187" r="3.5" fill="#c4a050"/>
+      <circle cx="140" cy="187" r="2" fill="#d4b060"/>
+ 
+      <!-- Light leaking under the door — warm glow -->
+      <rect x="90" y="216" width="54" height="3" rx="1" fill="#fef08a" opacity="0.7"/>
+      <ellipse cx="117" cy="219" rx="28" ry="6" fill="#fef08a" opacity="0.2"/>
+ 
+      <!-- A note being slid under the door -->
+      <rect x="96" y="214" width="36" height="6" rx="1" fill="#fef9c3" transform="rotate(-1 96 214)"/>
+      <line x1="100" y1="217" x2="124" y2="217" stroke="rgba(60,40,20,0.2)" stroke-width="0.5"/>
+      <line x1="100" y1="219" x2="120" y2="219" stroke="rgba(60,40,20,0.2)" stroke-width="0.5"/>
+ 
+      <!-- Sign on door -->
+      <rect x="96" y="162" width="42" height="12" rx="1" fill="#fef9c3" opacity="0.9"/>
+      <text x="117" y="171" font-family="Georgia, serif" font-size="6" fill="#3d2b1a" text-anchor="middle" font-style="italic">Occupied</text>
+ 
+      <!-- Cosy framed picture on wall -->
+      <rect x="520" y="60" width="70" height="55" rx="2" fill="#8B6914" opacity="0.6"/>
+      <rect x="524" y="64" width="62" height="47" rx="1" fill="#c4a878" opacity="0.4"/>
+      <!-- Simple landscape inside frame -->
+      <ellipse cx="555" cy="98" rx="28" ry="8" fill="#4a6840" opacity="0.5"/>
+      <ellipse cx="543" cy="86" rx="8" ry="12" fill="#4a6840" opacity="0.4"/>
+      <ellipse cx="562" cy="83" rx="10" ry="14" fill="#4a6840" opacity="0.4"/>
+ 
+      <!-- Umbrella stand -->
+      <rect x="518" y="200" width="16" height="48" rx="3" fill="#5a3a1a"/>
+      <ellipse cx="526" cy="200" rx="10" ry="4" fill="#6b4423"/>
+      <!-- Umbrella handles poking out -->
+      <path d="M 520 200 Q 512 188 518 185" stroke="#3d2b1a" stroke-width="2" fill="none" stroke-linecap="round"/>
+      <path d="M 526 198 Q 518 184 524 181" stroke="#6b4423" stroke-width="2" fill="none" stroke-linecap="round"/>
+      <path d="M 532 200 Q 540 186 534 183" stroke="#3d2b1a" stroke-width="2" fill="none" stroke-linecap="round"/>
+ 
+      <!-- Coat hooks on wall with coats -->
+      <circle cx="570" cy="155" r="3" fill="#8B6914"/>
+      <circle cx="590" cy="155" r="3" fill="#8B6914"/>
+      <path d="M 570 158 Q 560 170 558 195 Q 557 205 565 205 Q 570 205 572 195 Q 574 175 570 158" fill="#5a3a1a" opacity="0.6"/>
+      <path d="M 590 158 Q 600 170 602 195 Q 603 205 595 205 Q 590 205 588 195 Q 586 175 590 158" fill="#3d2b1a" opacity="0.5"/>
+ 
+      <!-- Small creature eyes glowing through door crack — just the tiniest hint -->
+      <ellipse cx="107" cy="183" rx="2" ry="2.5" fill="#86efac" opacity="0.6"/>
+      <ellipse cx="114" cy="183" rx="2" ry="2.5" fill="#86efac" opacity="0.6"/>
+    </svg>
+  </div>
+ 
+  <!-- ── TITLE ── -->
+  <div class="title-block">
+    <span class="title-label">A Story</span>
+    <h1>The Creature Under<br>the <em>Stairs</em></h1>
+    <p class="title-sub">Not scary. Just very opinionated.</p>
+  </div>
+ 
+  <!-- ── STORY ── -->
+  <div class="story">
+ 
+    <p class="dropcap">
+      The creature under the stairs had lived there for as long as anyone in the Mossop family could remember, which was a long time, as the Mossops were not a family that forgot things easily.
+    </p>
+ 
+    <p>
+      It was not large. It was not small. It was about the size of a very confident badger, though it looked nothing like a badger, and if you had said this to it, it would have slid a note under the cupboard door expressing its views on the comparison, which would not have been flattering to the badger.
+    </p>
+ 
+    <p>
+      Nobody in the family had ever seen it clearly. It kept the light off in the cupboard and the door shut, which it considered basic privacy, and which the Mossops considered reasonable, because they had been brought up to respect boundaries even when those boundaries belonged to something that lived behind the hoover and the box of Christmas decorations they hadn't opened since 2019.
+    </p>
+ 
+    <p>
+      Its name, according to a note it had slipped under the door on the occasion of the family's first Christmas with it, was <span class="cname">Winthrop</span>.
+    </p>
+ 
+    <p>
+      The note had also contained three paragraphs of opinions about the choice of tree topper, which it had found derivative. The family had replaced the star with an owl, on reflection, and it had looked considerably better. This was the beginning of a pattern.
+    </p>
+ 
+    <div class="divider"><span>— ✦ —</span></div>
+ 
+    <p>
+      Winthrop communicated entirely in notes. The notes were written in a very small, very neat hand on whatever paper was available, which over the years had included the backs of receipts, a library card, the margin of a TV guide, and on one memorable occasion, a crisp packet, which had impressed the children considerably.
+    </p>
+ 
+    <p>
+      The notes were never threatening. They were never rude, exactly. They were simply — opinions. About everything. Delivered with the serenity of a creature that had never once doubted itself.
+    </p>
+ 
+  </div>
+ 
+  <!-- ── NOTE CLUSTER 1 ── -->
+  <div class="note-cluster">
+    <div class="sticky yellow taped">
+      <span class="sticky-label">Re: Tuesday's dinner</span>
+      The pasta was overcooked by approximately four minutes. I have left a timer by the kettle.
+    </div>
+    <div class="sticky blue">
+      <span class="sticky-label">Re: The new sofa</span>
+      The colour is wrong for the room. Suggest terracotta. You will thank me.
+    </div>
+    <div class="sticky pink taped">
+      <span class="sticky-label">Re: That film</span>
+      The ending was not earned. I heard you watching it. I have opinions. There are many pages.
+    </div>
+    <div class="sticky green">
+      <span class="sticky-label">Re: The garden</span>
+      The roses want more sun. They have been asking for months. Nobody is listening.
+    </div>
+  </div>
+ 
+  <div class="story">
+ 
+    <p>
+      The family had, in the early days, found this alarming. <span class="cname">Mrs. Mossop</span> had called the landlord, who said it wasn't in the lease. <span class="cname">Mr. Mossop</span> had stood outside the cupboard door and explained, in a measured voice, that unsolicited advice was unwelcome in this household. A note had appeared under the door within minutes containing the single word: <em>Disagree.</em>
+    </p>
+ 
+    <p>
+      The children — <span class="cname">Theo</span>, who was eleven, and <span class="cname">Priya</span>, who was eight — had adapted fastest. Children generally do. They had started leaving notes back.
+    </p>
+ 
+  </div>
+ 
+  <!-- ── FORMAL LETTER ── -->
+  <div class="letter">
+    <div class="letter-header">
+      <span class="letter-from">Correspondence — Under the Stairs</span>
+      <span class="letter-title">From the desk of Winthrop</span>
+    </div>
+    <div class="letter-body">
+      <p>Dear Theo,</p>
+      <p>Regarding your question about whether you should try out for the school play:</p>
+      <p>Yes. You are a natural performer. You have been performing "I don't care about this" for three years and nobody has believed you once.</p>
+      <p>The audition is Thursday. Prepare something short. Do not do the voice from that cartoon. You know which one.</p>
+      <p>Yours in practical matters,</p>
+    </div>
+    <div class="letter-sign">Winthrop</div>
+  </div>
+ 
+  <div class="story">
+ 
+    <p>
+      Theo had gotten the lead. He had not done the voice from the cartoon.
+    </p>
+ 
+    <p>
+      After that, the children began consulting Winthrop on everything. Not because they were told to — their parents had, in fact, suggested several times that perhaps one should not take life advice from something that lived behind the hoover — but because Winthrop was, against all reasonable expectation, never wrong.
+    </p>
+ 
+  </div>
+ 
+  <!-- ── OPINION LEDGER ── -->
+  <div class="ledger">
+    <div class="ledger-title">Selected Opinions of Winthrop — Verified Correct in Retrospect</div>
+    <div class="ledger-row">
+      <div class="ledger-cell topic">The shortcut through the park</div>
+      <div class="ledger-cell opinion">Takes longer than the main road. I have timed it. Stop using it.</div>
+    </div>
+    <div class="ledger-row">
+      <div class="ledger-cell topic">Priya's best friend situation</div>
+      <div class="ledger-cell opinion">The one who returns books is a better friend than the one who doesn't. This is not complicated.</div>
+    </div>
+    <div class="ledger-row">
+      <div class="ledger-cell topic">Whether to apologise first</div>
+      <div class="ledger-cell opinion">Yes. Obviously. The longer you wait the harder it gets. This is physics.</div>
+    </div>
+    <div class="ledger-row">
+      <div class="ledger-cell topic">The new dentist</div>
+      <div class="ledger-cell opinion">Fine. Stop avoiding it. I can hear you worrying from here.</div>
+    </div>
+    <div class="ledger-row">
+      <div class="ledger-cell topic">The argument about the dishwasher</div>
+      <div class="ledger-cell opinion">You are both wrong. The correct method is on a note which I slid under the door in March. Nobody read it.</div>
+    </div>
+    <div class="ledger-row">
+      <div class="ledger-cell topic">What Priya should be for Halloween</div>
+      <div class="ledger-cell opinion">Something with structural integrity. Last year's costume fell apart by seven PM. I have noted this before.</div>
+    </div>
+  </div>
+ 
+  <div class="story">
+ 
+    <p>
+      The only time Winthrop had ever been wrong — or at least, the only time the family had been able to verify it — was on the question of the cat.
+    </p>
+ 
+    <p>
+      A cat had appeared at the back door in November, thin and orange and possessed of an extremely firm opinion about the mat on which it wished to sit. A note from Winthrop had appeared within the hour.
+    </p>
+ 
+  </div>
+ 
+  <div class="note-cluster">
+    <div class="sticky yellow taped" style="max-width:320px; transform:rotate(-0.5deg);">
+      <span class="sticky-label">Re: The cat</span>
+      Do not let it in. It will be more work than you expect. You will become its staff within a fortnight. I have seen this before.
+      <br><br>
+      I am, however, aware that you have already let it in, as I can hear it walking around with considerable confidence.
+      <br><br>
+      Its name should be <em>Cardamom</em>. This is non-negotiable.
+    </div>
+  </div>
+ 
+  <div class="story">
+ 
+    <p>
+      The cat was called Cardamom. It had immediately made itself at home in every room of the house, including, briefly, the cupboard under the stairs, after which Winthrop had slid a note under the door that said only: <em>Absolutely not.</em>
+    </p>
+ 
+    <p>
+      Cardamom had departed. She had not seemed bothered. She had better places to be.
+    </p>
+ 
+    <div class="divider"><span>— ✦ —</span></div>
+ 
+    <p>
+      The question of whether Winthrop was happy had occurred to Priya first, because Priya was the kind of person to whom such questions occurred, and had been since she was very small.
+    </p>
+ 
+    <p>
+      She had stood outside the cupboard door one Saturday morning with a piece of paper and a pencil, and she had written: <em>Are you happy in there?</em>
+    </p>
+ 
+    <p>
+      There was a long pause. Longer than usual. The Mossops had learned to read the length of Winthrop's pauses. A short pause meant a short note. A long pause meant several pages. The pause this time was medium-length, which was rarer.
+    </p>
+ 
+    <p>
+      The note, when it came, was four sentences.
+    </p>
+ 
+  </div>
+ 
+  <!-- ── THE IMPORTANT LETTER ── -->
+  <div class="letter" style="transform:rotate(-0.5deg)">
+    <div class="letter-header">
+      <span class="letter-from">Personal correspondence</span>
+      <span class="letter-title">From Winthrop, to Priya</span>
+    </div>
+    <div class="letter-body">
+      <p>This is a good question.</p>
+      <p>I am comfortable. I am occupied. The hoover needs a new filter and I have written several notes about this which nobody has acted on, which I find characterful rather than frustrating.</p>
+      <p>I would not change very much.</p>
+      <p>You may tell the others.</p>
+    </div>
+    <div class="letter-sign">Winthrop</div>
+  </div>
+ 
+  <div class="story">
+ 
+    <p>
+      Priya told the others. Theo said that was good. Mr. Mossop said he'd look at the hoover. Mrs. Mossop stood in the hallway for a moment looking at the cupboard door, and then she wrote a note of her own, and slid it under.
+    </p>
+ 
+    <p>
+      It said: <em>We wouldn't change very much either.</em>
+    </p>
+ 
+    <p>
+      There was no reply to this. But that evening, when Mrs. Mossop came downstairs for a glass of water at midnight, she saw a sliver of warm light under the cupboard door, and heard, just faintly, what might have been someone moving things around contentedly in the dark.
+    </p>
+ 
+    <p>
+      Or it might have been nothing. Houses make noises.
+    </p>
+ 
+    <p>
+      But she stood there for a moment anyway, in the quiet hallway, with the stairs rising above her and the small warm light below, and she felt, in the way one feels things at midnight in a house where everyone is asleep, that things were in their right places.
+    </p>
+ 
+    <p>
+      In the morning there was a new note by the kettle.
+    </p>
+ 
+  </div>
+ 
+  <div class="note-cluster">
+    <div class="sticky cream taped" style="max-width:260px; transform:rotate(0.8deg); font-size:18px;">
+      <span class="sticky-label">For the household</span>
+      The hoover filter. I am not going to stop mentioning it.
+      <br><br>
+      — W.
+    </div>
+  </div>
+ 
+  <div class="story">
+    <p>
+      Mr. Mossop ordered a new filter that afternoon.
+    </p>
+ 
+    <p>
+      It arrived on Thursday. He left it outside the cupboard door without a word.
+    </p>
+ 
+    <p>
+      By morning it was gone.
+    </p>
+  </div>
+ 
+  <div class="end-mark">
+    <span>— End —</span>
+  </div>
+ 
+</div>
+ 
+</body>
+</html>
+ 
